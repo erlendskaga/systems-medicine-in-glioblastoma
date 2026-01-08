@@ -15,7 +15,6 @@
 # library(ggplot2)
 # library(pvclust)
 
-# ====================================================================================
 ## ---- Input files ------------------------------------------------------------------
 
 # DSRT data filtered by data avaialability >70% of the samples and sample-wise variance >10
