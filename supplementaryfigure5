@@ -8,8 +8,6 @@
 
 # library(tidyverse)
 # library(devtools)
-# library(ComplexHeatmap)
-# library(circlize)
 # library(readxl)
 # library(tibble)
 # library(ggplot2)
