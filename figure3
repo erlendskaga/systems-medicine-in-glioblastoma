@@ -4,19 +4,26 @@
 # - Correlation of cancer drugs by bioactivity (Figure 3c)
 # - Reproducibility of groups detected by unsupervised clustering (Supplementary Figure 5b)
 
-# ==============================================================================
-# Figure 3a: Drug sensitivity taxonomy of glioblastoma
-# ==============================================================================
+## ---- Libraries --------------------------------------------------------------
 
 # library(tidyverse)
 # library(devtools)
 # library(ComplexHeatmap)
 # library(circlize)
+# library(grid)
 # library(readxl)
 # library(tibble)
 # library(ggplot2)
+# library(RColorBrewer)
+# library(corrplot)
 
-## ---- Input files --------------------------------------------------------------
+
+# ==============================================================================
+# Figure 3a: Drug sensitivity taxonomy of glioblastoma
+# ==============================================================================
+
+
+## ---- Input files ------------------------------------------------------------
 
 # DSRT data filtered by data avaialability >70% of the samples and sample-wise variance >10
 
@@ -25,11 +32,11 @@
 # results <- select(drugs, -c(Mechanism.Targets, Class.explained, variance, sign)) 
 # results <- as.matrix(results)
 
-## ---- Colors -------------------------------------------------------------------
+## ---- Colors -----------------------------------------------------------------
 
 # col_fun <- colorRamp2(c(-17, 0, 17), c("darkblue", "white", "red3")) 
 
-## ---- Load sample annotations --------------------------------------------------
+## ---- Load sample annotations ------------------------------------------------
 
 # ann <- read_excel("data/Table5-Annotations.xlsx") #From a data repository with defined excel sheet
 # ann <- column_to_rownames(ann, var = "Tumor.ID")
@@ -37,22 +44,7 @@
 # ann <- t(ann) # Transpose the matrix
 # ann <- as.data.frame(ann)
 
-## ---- Prepare annotations ------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## ---- Prepare annotations ----------------------------------------------------
 
 # Top annotations (sample annotations)
 
@@ -80,9 +72,9 @@
   "Targets" = anno_text(drugs$Mechanism.Targets, gp = gpar(fontsize = 3))
 )
 
-## ---- Create figure 3a ---------------------------------------------------------
+## ---- Create figure 3a -------------------------------------------------------
 
-# hm_3a <- Heatmap(drugs, 
+# hm_3a <- Heatmap(results, 
         name = "sDSS",
         col = col_fun,
         na_col = "#d9d9d9",
@@ -113,7 +105,37 @@
 # Figure 3c: Correlation of cancer drugs by bioactivity 
 # ==============================================================================
 
+# matrix <- t(results)
+# matrix <- as.data.frame(matrix)
 
+## ---- Prepare correlation matrix ---------------------------------------------
 
+# corr.matrix.pearson <- cor(matrix, use = "pairwise.complete.obs", method = "pearson")
 
+## ---- Colours ----------------------------------------------------------------
 
+# my.palette.percent <- colorRampPalette(c("#2166ac","#4393c3","#92c5de", "#d1e5f0", "#f7f7f7", "#f7f7f7","#f4a582", "#b2182b"))(100)
+
+## ---- Create correlation plot ------------------------------------------------
+
+# summary(corr.matrix.pearson)
+# min(corr.matrix.pearson)
+# max(corr.matrix.pearson)
+
+# corrplot(corr.matrix.pearson,
+         #is.corr = FALSE, #let the package decide the limits of correlation 
+         method = "color", #"circle", "square", "ellipse", "number", "shade", "color", "pie"
+         col = my.palette.percent,
+         type = "full",
+         col.lim = c(-1, 1),
+         diag = FALSE,
+         addgrid.col = "transparent", # color of the grid
+         tl.col = "black",# color of the column and row names
+         #addCoef.col = "black", #show the values
+         addCoefasPercent = TRUE, #changes the coefficients to percentages for space saving
+         order = "hclust", #organization of the columns, "original", "AOE", "FPC", "hclust", "alphabet"
+         hclust.method = "ward.D", #type of clustering method (ward, ward.D, ward.D2, single, complete, average, mcquitty, median, centroid)
+         #addrect = 12, # number of rectangles drawn on the map
+         number.cex = 0.7,
+         tl.cex = 0.75,
+)
