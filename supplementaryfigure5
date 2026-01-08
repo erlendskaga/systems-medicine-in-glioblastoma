@@ -1,8 +1,35 @@
 # ====================================================================================
 # Supplemetary Figure 5: Reproducibility of groups detected by unsupervised clustering
 # - Reproducibility of groups detected by unsupervised clustering (Suppl. Fig. 5b)
+
+
+
+# ====================================================================================
+# Supplemetary Figure 5: Reproducibility of groups detected by unsupervised clustering
 # ====================================================================================
 
+# library(tidyverse)
+# library(devtools)
+# library(ComplexHeatmap)
+# library(circlize)
+# library(readxl)
+# library(tibble)
+# library(ggplot2)
+# library(pvclust)
 
+# ====================================================================================
+## ---- Input files ------------------------------------------------------------------
 
+# DSRT data filtered by data avaialability >70% of the samples and sample-wise variance >10
 
+# drugs <- read_excel("data/Table4-DSRT_for_taxonomy.xlsx")
+# drugs <- column_to_rownames(drugs, var = "DRUG_NAME")
+# results <- select(drugs, -c(Mechanism.Targets, Class.explained, variance, sign)) 
+# results <- as.matrix(results)
+
+## ---- Test robustness of clustering ------------------------------------------------
+
+# pvc <- pvclust(results, method.dist="correlation", method.hclust="ward.D", nboot=10000, parallel= TRUE)
+# plot(pvc)
+# pvrect(pvc, alpha = 0.95)
+# seplot(pvc, identify = TRUE)
