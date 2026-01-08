@@ -2,6 +2,7 @@
 # Figure 3: Drug sensitivity taxonomy of glioblastoma
 # - Drug sensitivity taxonomy of glioblastoma (Figure 3a)
 # - Correlation of cancer drugs by bioactivity (Figure 3c)
+# - Reproducibility of groups detected by unsupervised clustering (Supplementary Figure 5b)
 
 # ==============================================================================
 # Figure 3a: Drug sensitivity taxonomy of glioblastoma
@@ -37,6 +38,21 @@
 # ann <- as.data.frame(ann)
 
 ## ---- Prepare annotations ------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Top annotations (sample annotations)
 
