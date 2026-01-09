@@ -16,6 +16,7 @@
 # library(tidyr)
 # library(tidytext)
 # library(gridExtra)
+# library(plotly)
 
 # ============================================================================================
 # Supplemetary Figure 6a: Principal component analysis of the drugs comprising the DSRT groups
@@ -88,6 +89,8 @@
 
 # print(pca_plot)
 
+# -- Repeat the steps to create the plots using other principal components -- #
+
 ## ---- Scree plot ---------------------------------------------------------------------------
 
 # explained_variance <- round(100 * pca_result@R2, 2)
@@ -157,6 +160,57 @@
 
 # grid.arrange(plot_1, plot_2, plot_3, plot_4, plot_5, plot_6, ncol = 1)
 
+# ============================================================================================
+# Supplemetary Figure 6b-c: 3D principal component analysis 
+# ============================================================================================
 
+## ---- 3D plots (PC2-PC4) -------------------------------------------------------------------
 
+#  pca_3d_plot <- plot_ly(
+  data = scores,
+  x = ~PC2,
+  y = ~PC3,
+  z = ~PC4,
+  color = ~Subgroup,
+  colors = group_colors,
+  type = "scatter3d",
+  mode = "markers+text",
+  text = ~rownames(scores),
+  marker = list(
+    size = 7,
+    opacity = 0.8
+  ),
+  textfont = list(
+    size = 10,
+    color = "black" 
+  ),
+  textposition = "top center"  
+) %>%
+  layout(
+    scene = list(
+      xaxis = list(
+        title = paste0("PC2 (", round(explained_variance[2], 1), "% variance)"),
+        titlefont = list(size = 15),
+        tickfont = list(size = 12)
+      ),
+      yaxis = list(
+        title = paste0("PC3 (", round(explained_variance[3], 1), "% variance)"),
+        titlefont = list(size = 15),
+        tickfont = list(size = 12)
+      ),
+      zaxis = list(
+        title = paste0("PC4 (", round(explained_variance[4], 1), "% variance)"),
+        titlefont = list(size = 15),
+        tickfont = list(size = 12)
+      )
+    ),
+    legend = list(
+      title = list(text = "DSRT Group", font = list(size = 14)),
+      font = list(size = 12)  # Legend text font size
+    ),
+    margin = list(l = 0, r = 0, b = 0, t = 0),
+    paper_bgcolor = 'white',
+    plot_bgcolor = 'white'
+  )
 
+# pca_3d_plot
