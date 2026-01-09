@@ -38,23 +38,125 @@
 # ann <- t(ann)
 # ann <- as.data.frame(ann)
 
-## ---- Prepare Principal component analysis with NIPLAS --------------------------------------
+## ---- Prepare Principal component analysis with NIPLAS -------------------------------------
 
-pca_result <- pca(results, method = "nipals", nPcs = 10, scale = "uv")
-scores <- as.data.frame(pca_result@scores)
+# pca_result <- pca(results, method = "nipals", nPcs = 10, scale = "uv")
+# scores <- as.data.frame(pca_result@scores)
 
-## ---- Add sample annotations (DSRT groups and overall sensitivity) ---------------------------
+## ---- Add sample annotations (DSRT groups and overall sensitivity) -------------------------
 
-scores$Subgroup <- ann$`DSRT group`
-scores$Sensitivity <- as.factor(ann$Sensitivity)
+# scores$Subgroup <- ann$`DSRT group`
+# scores$Sensitivity <- as.factor(ann$Sensitivity)
+# group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black")
+# group_colors_2 <- c("High" = "#330066", "Intermediate" = "#9A66CC", "Low" = "#E6CCF2")
 
-# Define colors for the subgroups (1 to 5)
-group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black")
-group_colors_2 <- c("High" = "#330066", "Intermediate" = "#9A66CC", "Low" = "#E6CCF2")
+## ---- Plot the PCA (example PC1 and PC2) ---------------------------------------------------
 
-# Plot the PCA with colors based on subgroups
-plot(scores$PC1, scores$PC2, col = group_colors[as.character(scores$Subgroup)], 
+# plot(scores$PC1, scores$PC2, col = group_colors[as.character(scores$Subgroup)], 
      pch = 16, xlab = "PC1", ylab = "PC2", main = "PCA with Colored Groups")
+# legend("topright", legend = names(group_colors), col = group_colors, pch = 16, title = "Subgroups")
 
-# Add a legend for the subgroups
-legend("topright", legend = names(group_colors), col = group_colors, pch = 16, title = "Subgroups")
+## ---- Visualized in ggplot in DSRT group colors (example PC1 and PC2) ----------------------
+
+# explained_variance <- round(100 * pca_result@R2, 1)
+# scores <- as.data.frame(pca_result@scores)
+# scores$Subgroup <- as.factor(ann$`DSRT group`)
+# scores$Sensitivity <- as.factor(ann$Sensitivity)
+# group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black")
+
+# pca_plot <- ggplot(scores, aes(x = PC1, y = PC2, color = Subgroup)) + # Adjust Principal Component according to visualization
+  geom_point(size = 5, alpha = 0.8) +  
+  scale_color_manual(values = group_colors) + 
+  labs(
+    x = paste0("PC1 (", explained_variance[1], "% variance)"),
+    y = paste0("PC2 (", explained_variance[2], "% variance)"),
+    title = ""
+  ) +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA),  
+    panel.grid.major = element_line(color = "grey80"), 
+    panel.grid.minor = element_line(color = "grey90"),  
+    text = element_text(size = 20),  
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"), 
+    axis.title = element_text(face = "bold"), 
+    axis.text = element_text(size = 20), 
+    legend.title = element_text(size = 20),
+    legend.text = element_text(size = 20) 
+  ) +
+  guides(color = guide_legend(title = "DSRT groups"))
+
+# print(pca_plot)
+
+## ---- Scree plot ---------------------------------------------------------------------------
+
+# explained_variance <- round(100 * pca_result@R2, 2)
+# explained_variance_df <- data.frame(
+  PC = paste0("PC", 1:10),
+  Variance = explained_variance[1:10]
+)
+
+# variance_plot <- ggplot(explained_variance_df, aes(x = reorder(PC, -Variance), y = Variance)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(
+    x = "Principal Components",
+    y = "Variance Explained (%)",
+    title = "Variance Contribution of the First 10 Principal Components"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Centered title
+    axis.title = element_text(size = 14, face = "bold"),  # Larger axis titles
+    axis.text = element_text(size = 12)  # Larger axis labels
+  )
+
+# print(variance_plot)
+
+## ---- Loading plot ---------------------------------------------------------------------------
+
+# loadings <- as.data.frame(pca_result@loadings)
+# loadings$Target <- drugs$Mechanism.Targets
+# loadings$Drug <- rownames(loadings) 
+
+# top_contributors <- loadings %>%
+  pivot_longer(cols = starts_with("PC"), names_to = "Component", values_to = "Loading") %>% 
+  mutate(AbsLoading = abs(Loading)) %>%
+  group_by(Component) %>%
+  slice_max(order_by = AbsLoading, n = 10) %>%
+  ungroup()
+
+# top_contributors
+
+# top_contributors_filtered <- top_contributors %>%
+  filter(Component %in% c("PC6"))
+
+# plot_6 <- ggplot(top_contributors_filtered, aes(x = reorder_within(Target, AbsLoading, Component), y = Loading, fill = Loading)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~ Component, scales = "free_x", ncol = 1) +
+  labs(
+    x = "Top Contributing Mechanistic Target",
+    y = "Loading Value",
+    title = " "
+  ) +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  scale_x_reordered() + 
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1), 
+    panel.spacing = unit(0.5, "lines"),
+    plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
+    axis.title = element_text(size = 15, face = "bold"),
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 20), 
+    axis.text.y = element_text(size = 20),
+    legend.title = element_text(size = 20),
+    legend.text = element_text(size = 20)
+  ) +
+  coord_flip()
+
+# print(plot_6)
+
+# grid.arrange(plot_1, plot_2, plot_3, plot_4, plot_5, plot_6, ncol = 1)
+
+
+
+
