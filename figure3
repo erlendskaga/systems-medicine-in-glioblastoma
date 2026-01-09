@@ -25,7 +25,7 @@
 
 # DSRT data filtered by data avaialability >70% of the samples and sample-wise variance >10
 
-# drugs <- read_excel("data/Table4-DSRT_for_taxonomy.xlsx")
+# drugs <- read_excel("data/Table4-DSRT_for_taxonomy.xlsx") #From a data repository with defined excel sheet
 # drugs <- column_to_rownames(drugs, var = "DRUG_NAME")
 # results <- select(drugs, -c(Mechanism.Targets, Class.explained, variance, sign)) 
 # results <- as.matrix(results)
@@ -39,7 +39,7 @@
 # ann <- read_excel("data/Table5-Annotations.xlsx") #From a data repository with defined excel sheet
 # ann <- column_to_rownames(ann, var = "Tumor.ID")
 # ann <- as.matrix(ann)
-# ann <- t(ann) # Transpose the matrix
+# ann <- t(ann)
 # ann <- as.data.frame(ann)
 
 ## ---- Prepare annotations ----------------------------------------------------
