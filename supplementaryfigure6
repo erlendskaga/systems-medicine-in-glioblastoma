@@ -1,1 +1,40 @@
+# ============================================================================================
+# Supplemetary Figure 6: Principal component analysis of GBM by drug responses
+# - Principal component analysis of GBM drug responses (Suppl. Fig. 6a-c)
 
+
+# ============================================================================================
+# Supplemetary Figure 6a: Principal component analysis of the drugs comprising the DSRT groups
+# ============================================================================================
+
+# library(tidyverse)
+# library(devtools)
+# library(ComplexHeatmap)
+# library(circlize)
+# library(readxl)
+# library(tibble)
+# library(ggplot2)
+# library(pcaMethods)
+# library(dplyr)
+# library(tidyr)
+# library(tidytext)
+# library(gridExtra)
+
+
+## ---- Input files ------------------------------------------------------------------
+
+# DSRT data filtered by data avaialability >70% of the samples and sample-wise variance >10
+
+# drugs <- read_excel("data/Table4-DSRT_for_taxonomy.xlsx")
+# drugs <- column_to_rownames(drugs, var = "DRUG_NAME")
+# results <- select(drugs, -c(Mechanism.Targets, Class.explained, variance, sign)) 
+# results <- as.matrix(results)
+
+## ---- Test robustness of clustering ------------------------------------------------
+
+# pvc <- pvclust(results, method.dist="correlation", method.hclust="ward.D", nboot=10000, parallel= TRUE)
+# plot(pvc)
+# pvrect(pvc, alpha = 0.95)
+# seplot(pvc, identify = TRUE)
+
+# ====================================================================================
