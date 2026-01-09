@@ -21,7 +21,7 @@
 # Supplemetary Figure 6a: Principal component analysis of the drugs comprising the DSRT groups
 # ============================================================================================
 
-## ---- Input files ------------------------------------------------------------
+## ---- Input files --------------------------------------------------------------------------
 
 # DSRT data filtered by data avaialability >70% of the samples and sample-wise variance >10
 
@@ -31,105 +31,30 @@
 # results <- as.matrix(results)
 # results <- t(results)
 
-## ---- Load sample annotations ------------------------------------------------
+## ---- Load sample annotations --------------------------------------------------------------
 
 # ann <- read_excel("data/Table5-Annotations.xlsx") #From a data repository with defined excel sheet
 # ann <- column_to_rownames(ann, var = "Tumor.ID")
 # ann <- t(ann)
 # ann <- as.data.frame(ann)
 
-## ---- Prepare annotations ----------------------------------------------------
+## ---- Prepare Principal component analysis with NIPLAS --------------------------------------
 
-# Top annotations (sample annotations)
+pca_result <- pca(results, method = "nipals", nPcs = 10, scale = "uv")
+scores <- as.data.frame(pca_result@scores)
 
-# ha_sel_box <- HeatmapAnnotation(
-  "Disease status" = ann$`Disease status`,
-  "MGMT status" = ann$`MGMT status`,
-  "Sensitivity" = ann$Sensitivity,
-  "DSRT group" = anno_block(gp = gpar(fill = c("red3", "orange2", "black", "green4", "blue4"), alpha = 0.80, col = "white", lwd = 0.2), #tallene definerer fargekoder in-built
-                            labels = c("I", "II", "V", "III", "IV"),
-                            labels_gp = gpar(col = "white", fontsize = 5),
-                            height = unit(0.25, "cm"),
-                            show_name = TRUE),
-  col = list("Disease status" = c("ND" = "#deebf7", "R" = "#9ecae1"),
-             "MGMT status" = c("Neg" = "#e5f5e0", "Pos" = "#a1d99b"),
-             "Sensitivity" = c("High" = "#9e9ac8", "Intermediate" = "#dadaeb", "Low" = "#f5f5f5")),
-  simple_anno_size = unit(1.20, "mm"),
-  gp = gpar(col = "white", lty = 1, lwd = 0.2),
-  annotation_name_side = "left",
-  annotation_name_gp = gpar(fontsize = 3)
-)
+## ---- Add sample annotations (DSRT groups and overall sensitivity) ---------------------------
 
-# Side annotations (drugs MoA)
+scores$Subgroup <- ann$`DSRT group`
+scores$Sensitivity <- as.factor(ann$Sensitivity)
 
-# new_mec_tar <- rowAnnotation(
-  "Targets" = anno_text(drugs$Mechanism.Targets, gp = gpar(fontsize = 3))
-)
+# Define colors for the subgroups (1 to 5)
+group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black")
+group_colors_2 <- c("High" = "#330066", "Intermediate" = "#9A66CC", "Low" = "#E6CCF2")
 
-## ---- Create figure 3a -------------------------------------------------------
+# Plot the PCA with colors based on subgroups
+plot(scores$PC1, scores$PC2, col = group_colors[as.character(scores$Subgroup)], 
+     pch = 16, xlab = "PC1", ylab = "PC2", main = "PCA with Colored Groups")
 
-# hm_3a <- Heatmap(results, 
-        name = "sDSS",
-        col = col_fun,
-        na_col = "#d9d9d9",
-        cluster_rows = TRUE,
-        cluster_columns = TRUE,
-        show_column_dend = TRUE, 
-        clustering_distance_rows = "pearson", 
-        clustering_distance_columns = "pearson", 
-        clustering_method_rows = "ward.D", 
-        clustering_method_columns = "ward.D", 
-        width = ncol(results)*unit(2.15, "mm"),
-        height = nrow(results)*unit(1.10, "mm"),
-        column_names_side = "top", column_dend_height = unit(1, "cm"),
-        column_title = "Tumors", column_title_side = "top", column_title_gp = gpar(fontsize = 15),
-        column_names_gp = gpar(fontsize = 4),
-        row_names_side  = "left", row_dend_width = unit(1, "cm"),
-        row_title = "Drugs", row_title_gp = gpar(fontsize = 15), row_title_rot = 90,
-        row_names_gp = gpar(fontsize = 3),
-        column_split = 5, column_gap = unit(0.20, "mm"), 
-        row_split = 14, row_gap = unit(0.35, "mm"),
-        top_annotation = ha_sel_box,
-        right_annotation = new_mec_tar,
-)
-
-# draw(hm_3a)
-
-# ==============================================================================
-# Figure 3c: Correlation of cancer drugs by bioactivity 
-# ==============================================================================
-
-# matrix <- t(results)
-# matrix <- as.data.frame(matrix)
-
-## ---- Prepare correlation matrix ---------------------------------------------
-
-# corr.matrix.pearson <- cor(matrix, use = "pairwise.complete.obs", method = "pearson")
-
-## ---- Colours ----------------------------------------------------------------
-
-# my.palette.percent <- colorRampPalette(c("#2166ac","#4393c3","#92c5de", "#d1e5f0", "#f7f7f7", "#f7f7f7","#f4a582", "#b2182b"))(100)
-
-## ---- Create correlation plot ------------------------------------------------
-
-# summary(corr.matrix.pearson)
-# min(corr.matrix.pearson)
-# max(corr.matrix.pearson)
-
-# corrplot(corr.matrix.pearson,
-         #is.corr = FALSE, #let the package decide the limits of correlation 
-         method = "color", #"circle", "square", "ellipse", "number", "shade", "color", "pie"
-         col = my.palette.percent,
-         type = "full",
-         col.lim = c(-1, 1),
-         diag = FALSE,
-         addgrid.col = "transparent", # color of the grid
-         tl.col = "black",# color of the column and row names
-         #addCoef.col = "black", #show the values
-         addCoefasPercent = TRUE, #changes the coefficients to percentages for space saving
-         order = "hclust", #organization of the columns, "original", "AOE", "FPC", "hclust", "alphabet"
-         hclust.method = "ward.D", #type of clustering method (ward, ward.D, ward.D2, single, complete, average, mcquitty, median, centroid)
-         #addrect = 12, # number of rectangles drawn on the map
-         number.cex = 0.7,
-         tl.cex = 0.75,
-)
+# Add a legend for the subgroups
+legend("topright", legend = names(group_colors), col = group_colors, pch = 16, title = "Subgroups")
