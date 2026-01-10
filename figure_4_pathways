@@ -1,7 +1,5 @@
 # ========================================================================================================
 # Figure 4: Coherent durg sensitivity, pathways, and biological mechanisms in MDM2-sensitive glioblastomas
-# - Step 1: 
-# - Step 2: 
 
 ## ---- Libraries -------------------------------------------------------------------------------
 
@@ -14,6 +12,8 @@
 # library(sva)
 # library(openxlsx)
 # library(qvalue)
+# library(ggplot2)
+# library(dplyr)
 
 ## ---- Input file ------------------------------------------------------------------------------
 
@@ -46,6 +46,45 @@ contr.matrix
 # vfit <- contrasts.fit(vfit, contrasts=contr.matrix)
 # efit <- eBayes(vfit)
 # top.pathways <- topTable(efit, number = Inf, sort.by = "p", adjust.method = "fdr")
+
+## The data frame "top.pathways" is the differential pathway activities between the MDM2 sensitive and MDM2 resistant tumors
+
+## ---- Plot the differences with a volcano plot ---------------------------------------------------
+
+# df <- top.pathways
+# df <- df %>%
+  mutate(Rank = rank(P.Value, ties.method = "first"),
+         NegLog10PValue = -log10(P.Value),
+         AbsLogFC = abs(logFC),
+         ColorGroup = case_when(
+           rownames(df) == "REACTOME_P53_INDEPENDENT_G1_S_DNA_DAMAGE_CHECKPOINT" ~ "Other",  # Override the specific row
+           grepl("P53|MDM2|MDM4", rownames(df)) ~ "P53 signaling",
+           TRUE ~ "Other"
+         ))
+
+# volcano_plot <- ggplot(df, aes(x = logFC, y = NegLog10PValue)) +
+  geom_point(data = df %>% filter(ColorGroup == "Other"), color = "lightgrey", alpha = 0.4, size = 4) + 
+  geom_point(data = df %>% filter(ColorGroup != "Other"), aes(color = ColorGroup), alpha = 0.80, size = 5) + 
+  scale_color_manual(values = c("P53 signaling" = "orange1", "Other" = "lightgrey")) + 
+  #geom_vline(xintercept = 0, linetype = "solid", color = "black", linewidth = 0.15) + 
+  geom_hline(yintercept = 1.3, linetype = "dashed", color = "black", linewidth = 0.65) +
+  labs(x = "Log Fold Change", y = "-log10(P-value)",
+       title = " ",
+       color = "Related pathway") +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 22),
+    axis.title = element_text(size = 22),
+    axis.line = element_line(color = "black"),  # Add axis lines
+    legend.text = element_text(size = 14),
+    legend.title = element_text(size = 16),
+    plot.margin = margin(0.5, 2.5, 0.5, 0.5, "cm")
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 12))) 
+
+# print(volcano_plot)
+
+## ---- Repeat the analysis for the other drug classes ---------------------------------------------------
 
 
 
