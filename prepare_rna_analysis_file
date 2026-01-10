@@ -147,6 +147,10 @@
 # covar.matrix <- dplyr::select(metadata, c(entity, sex, mgmt)) # Correct batch-effect preserve the signal for entity, sex and mgmt-status
 # filtered.counts.corrected <- ComBat_seq(filtered.counts, batch=batch, group=NULL, covar_mod=covar.matrix)
 
+# ---- Save file for later use in pathway analyses ------------------------------
+
+## write.csv(filtered.counts.corrected, "/('...loaction.../batch.corrected.counts.ensmbl.csv, row.names = TRUE)
+
 ## ---- QC of the batch correction ----------------------------------------------
 
 # dds.corrected <- DESeqDataSetFromMatrix(countData = filtered.counts.corrected,
