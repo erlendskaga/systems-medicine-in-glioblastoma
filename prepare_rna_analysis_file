@@ -223,6 +223,6 @@
 # count.geneID$geneID <- rownames(count.geneID)
 # count.geneID <- dplyr::select(count.geneID, -c(var = "geneID"))
 
-## The final matrix for downstream analysis has been filtered for lowly expressed genes, is corrected for batch-effect and gene annotations are with known Gene Names. Finale matrix size is 15,551 genes in 23 columns(tumors). 
+## The final matrix (counts-geneID) for downstream analysis has been filtered for lowly expressed genes, is corrected for batch-effect and gene annotations are with known Gene Names. Finale matrix size is 15,551 genes in 23 columns(tumors). 
 
 
