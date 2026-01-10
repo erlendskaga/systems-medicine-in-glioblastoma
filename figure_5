@@ -23,7 +23,7 @@ library(qvalue)
 
 # View(counts.geneID)
 
-# metadata <- read_excel("data/annotations.xlsx")
+# metadata <- read_excel("data/rna_annotations.xlsx")
 # metadata <- column_to_rownames(metadata, 'x')
 # metadata <- t(metadata)
 # metadata <- as.data.frame(metadata)
