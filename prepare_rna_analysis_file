@@ -2,7 +2,7 @@
 # Code for preparation of RNA-sequencing counts for DGE and pathway abalysis
 # - Step 1: Filter lowly expressed genes
 # - Step 2: QC and batch correction
-# - 
+# - Step 3: Change from Ensemle Gene ID to Gene name
 
 # ==============================================================================
 # Step 1:Filter lowly expressed genes
@@ -138,21 +138,91 @@
 # library(tidyverse)
 # library(RColorBrewer)
 
+## ---- Define the batches -----------------------------------------------------
+
+# filtered.counts <- as.matrix(filtered.counts)
+# batch <- metadata$batch
+# batch <- as.numeric(batch)
+
+# covar.matrix <- dplyr::select(metadata, c(entity, sex, mgmt)) # Correct batch-effect preserve the signal for entity, sex and mgmt-status
+# filtered.counts.corrected <- ComBat_seq(filtered.counts, batch=batch, group=NULL, covar_mod=covar.matrix)
+
+## ---- QC of the batch correction ----------------------------------------------
+
+# dds.corrected <- DESeqDataSetFromMatrix(countData = filtered.counts.corrected,
+                              colData = metadata, 
+                              design = ~mgmt+sex+entity)
+
+# dds.corrected <- estimateSizeFactors(dds.corrected)
+# normalized.data.corrected <- counts(dds.corrected, normalized=TRUE) 
+# rlog_data_corrected <- rlog(dds.corrected, blind = TRUE)
+# rlog.matrix.corrected <- assay(rlog_data_corrected)
+# plotPCA(rlog_data_corrected, intgroup="batch")
 
 
+# ==============================================================================
+# Step 3: Change from Ensemle Gene ID to Gene name
+# ==============================================================================
 
+## ---- Libraries --------------------------------------------------------------
 
+# library(org.Hs.eg.db)
+# library(AnnotationDbi)
+# library(biomaRt)
 
+## ---- Select correct BioMart database ----------------------------------------
 
+# ensembl <- useEnsembl(biomart = "genes")
+# datasets <- listDatasets(ensembl)
+# head(datasets)
+# searchDatasets(mart = ensembl, pattern = "hsapiens")
+# ensembl <- useDataset(dataset = "hsapiens_gene_ensembl", mart = ensembl)
+# listEnsemblArchives() # see the archives database versions of gene names
+# listEnsembl(version = 112)
+# ensembl112 <- useEnsembl(biomart = 'genes', 
+                         dataset = 'hsapiens_gene_ensembl',
+                         version = 112)
 
+## ---- Change to Gene Names ---------------------------------------------------
 
+# count.geneID <- filtered.counts.corrected
+# filters <- listFilters(ensembl) #define restrictions
+# filters[1:5,]
+# attributes <- listAttributes(ensembl) #define the attributes to gather
+# attributes[1:5,]
+# head(attributes, 10)
 
+# ensg_code <- rownames(count.geneID)
+# gene_ids <- getBM(attributes = 	c("ensembl_gene_id_version", "hgnc_symbol"),
+                  filters = "ensembl_gene_id_version",
+                  values = ensg_code, 
+                  mart = ensembl112)
 
+## ---- Change to Gene Names ---------------------------------------------------
 
+# count.geneID <- as.data.frame(count.geneID)
+# count.geneID <- rownames_to_column(count.geneID, "ensembl_gene_id_version")
+# count.geneID <- count.geneID |> 
+  inner_join(gene_ids)
 
+## ---- Remove rows without defined gene names and double check matrix ---------
 
+# sum(count.geneID$hgnc_symbol!="")
+# sum(count.geneID$hgnc_symbol=="")
+# count.geneID <- count.geneID[count.geneID$hgnc_symbol!="",]
+# count.geneID <- dplyr::select(count.geneID, -c(ensembl_gene_id_version)) 
+# any(duplicated(count.geneID$hgnc_symbol))
+# which(duplicated(count.geneID$hgnc_symbol))
+# sum(duplicated(count.geneID$hgnc_symbol))
+# table(duplicated(count.geneID$hgnc_symbol)) 
+# count.geneID[duplicated(count.geneID$hgnc_symbol),] #which genes are duplicated
+# count.geneID <- count.geneID[!duplicated(count.geneID$hgnc_symbol),]
+# any(duplicated(count.geneID$hgnc_symbol))
+# rownames(count.geneID) <- NULL
+# count.geneID <- tibble::column_to_rownames(count.geneID, var = "hgnc_symbol")
+# count.geneID$geneID <- rownames(count.geneID)
+# count.geneID <- dplyr::select(count.geneID, -c(var = "geneID"))
 
-
-
+## The final matrix for downstream analysis has been filtered for lowly expressed genes, is corrected for batch-effect and gene annotations are with known Gene Names. Finale matrix size is 15,551 genes in 23 columns(tumors). 
 
 
