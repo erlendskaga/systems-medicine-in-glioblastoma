@@ -1,1 +1,80 @@
+# ==============================================================================
+# Code for preparation of RNA-sequencing counts for DGE and pathway abalysis
+# - Step 1: Filter lowly expressed genes
+# - 
+# - 
+
+# ==============================================================================
+# Step 1:Filter lowly expressed genes
+# ==============================================================================
+
+## ---- Libraries --------------------------------------------------------------
+
+# library(readxl)
+# library(edgeR)
+# library(tibble)
+# library(tidyverse)
+# library(Glimma)
+
+# ---- Read in file ------------------------------------------------------------
+
+# counts <- read.csv("data/rna_seq_counts.csv", header = TRUE, sep = ",")
+# counts <- column_to_rownames(counts_name, var = "GeneID")
+# any(duplicated(rownames(counts)))
+
+# ---- Create DGElist ----------------------------------------------------------
+
+# dlist <- DGEList(counts) #create the DGElist objct
+# samplenames <- colnames(counts)
+# colnames(dlist) <- samplenames
+
+# ---- Read in annotations -----------------------------------------------------
+
+# sample_info <- read_excel("data/annotations.xlsx")
+# sample_info <- column_to_rownames(sample_info, 'x')
+# ann <- t(sample_info)
+# ann <- as.data.frame(ann)
+
+# ---- Organize sample information ---------------------------------------------
+
+# entity <- ann$entity
+# entity <- as.factor(entity)
+# dlist$samples$entity <- entity
+
+# batch <- ann$batch
+# batch <- as.factor(batch)
+# dlist$samples$batch <- batch
+
+# mgmt <- ann$mgmt
+# mgmt <- as.factor(mgmt)
+# dlist$samples$mgmt <- mgmt
+
+# sex <- ann$sex
+# sex <- as.factor(sex)
+# dlist$samples$sex <- sex
+
+# three <- ann$group.of.three
+# three <- as.factor(three)
+# dlist$samples$three <- three
+
+# sensitivity <- ann$sensitive
+# sensitivity <- as.factor(sensitivity)
+# dlist$samples$sensitivity <- sensitivity
+
+# ---- Pre-processing of data --------------------------------------------------
+
+# cpm <- cpm(dlist) # transform data to cpm and next step to log cpm (lcpm)
+# lcpm <- cpm(dlist, log=TRUE) 
+
+# L <- mean(dlist$samples$lib.size) * 1e-6 # mean library size
+# M <- median(dlist$samples$lib.size) * 1e-6 # median library size
+
+# dlist$samples$lib.size
+# summary(dlist$samples$lib.size)
+
+# ==============================================================================
+# ---- Filter lowly expressed genes --------------------------------------------
+
+
+
 
