@@ -30,7 +30,7 @@
 
 ## ---- Read in annotations ----------------------------------------------------
 
-# sample_info <- read_excel("data/annotations.xlsx")
+# sample_info <- read_excel("data/rna_annotations.xlsx")
 # sample_info <- column_to_rownames(sample_info, 'x')
 # ann <- t(sample_info)
 # ann <- as.data.frame(ann)
