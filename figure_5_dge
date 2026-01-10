@@ -14,7 +14,7 @@ library(openxlsx)
 library(qvalue)
 
 # ===============================================================================================
-# Figure 5a: Heatmap of differential gene expression between EGFR-sensitive and -resistant tumors
+# Figure 5a-b: Heatmap of differential gene expression between EGFR-sensitive and -resistant tumors
 # ===============================================================================================
 
 ## This continues from the "prepare_rna_analysis_file"
