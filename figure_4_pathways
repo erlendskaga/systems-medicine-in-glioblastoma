@@ -3,3 +3,50 @@
 # - Step 1: 
 # - Step 2: 
 
+## ---- Libraries -------------------------------------------------------------------------------
+
+# library(edgeR)
+# library(readxl)
+# library(tibble)
+# library(tidyverse)
+# library(RColorBrewer)
+# library(Glimma)
+# library(sva)
+# library(openxlsx)
+# library(qvalue)
+
+## ---- Input file ------------------------------------------------------------------------------
+
+## Input data is the "pathway.matrix" prepeared in the "prepare_pathways_anlysis_file"
+
+# pathways <- pathway.matrix
+
+# metadata <- read_excel("data/rna_annotations.xlsx")
+# metadata <- column_to_rownames(metadata, 'x')
+# metadata <- t(metadata)
+# metadata <- as.data.frame(metadata)
+
+## ---- Make a design matrix ---------------------------------------------------------------------
+
+# model <- ~0+mdm2+mgmt+entity+sex
+# design.matrix <- model.matrix(model, metadata)
+design.matrix
+
+## ---- Make a contrast matrix --------------------------------------------------------------------
+
+formula <- c("mdm2yes-mdm2no")
+contr.matrix <- makeContrasts(
+  formula, levels = colnames(design.matrix)
+)
+contr.matrix
+
+## ---- Linear modeling ---------------------------------------------------------------------------
+
+# vfit <- lmFit(pathways, design.matrix)
+# vfit <- contrasts.fit(vfit, contrasts=contr.matrix)
+# efit <- eBayes(vfit)
+# top.pathways <- topTable(efit, number = Inf, sort.by = "p", adjust.method = "fdr")
+
+
+
+
