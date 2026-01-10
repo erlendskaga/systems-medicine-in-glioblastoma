@@ -16,26 +16,26 @@
 # library(tidyverse)
 # library(Glimma)
 
-# ---- Read in file ------------------------------------------------------------
+## ---- Read in file -----------------------------------------------------------
 
 # counts <- read.csv("data/rna_seq_counts.csv", header = TRUE, sep = ",")
 # counts <- column_to_rownames(counts_name, var = "GeneID")
 # any(duplicated(rownames(counts)))
 
-# ---- Create DGElist ----------------------------------------------------------
+## ---- Create DGElist ---------------------------------------------------------
 
 # dlist <- DGEList(counts) #create the DGElist objct
 # samplenames <- colnames(counts)
 # colnames(dlist) <- samplenames
 
-# ---- Read in annotations -----------------------------------------------------
+## ---- Read in annotations ----------------------------------------------------
 
 # sample_info <- read_excel("data/annotations.xlsx")
 # sample_info <- column_to_rownames(sample_info, 'x')
 # ann <- t(sample_info)
 # ann <- as.data.frame(ann)
 
-# ---- Organize sample information ---------------------------------------------
+## ---- Organize sample information --------------------------------------------
 
 # entity <- ann$entity
 # entity <- as.factor(entity)
@@ -61,7 +61,7 @@
 # sensitivity <- as.factor(sensitivity)
 # dlist$samples$sensitivity <- sensitivity
 
-# ---- Pre-processing of data --------------------------------------------------
+## ---- Pre-processing of data -------------------------------------------------
 
 # cpm <- cpm(dlist) # transform data to cpm and next step to log cpm (lcpm)
 # lcpm <- cpm(dlist, log=TRUE) 
@@ -72,19 +72,81 @@
 # dlist$samples$lib.size
 # summary(dlist$samples$lib.size)
 
-# ---- Filter lowly expressed genes --------------------------------------------
+## ---- Filter lowly expressed genes --------------------------------------------
 
 # ?filterByExpr #used function (filterByExpr) from the edgeR-package for autmatic gene filtering
 # keep.exprs <- filterByExpr(dlist, group = five)
 # x <- dlist[keep.exprs, , keep.lib.sizes=FALSE]
 # dlist$samples$lib.size
 # x$samples$lib.size
-# counts_filtered <- x$counts
-
+# filtered.counts <- x$counts
 
 # ==============================================================================
 # Step 2: QC and batch correction
 # ==============================================================================
+
+## ---- Libraries --------------------------------------------------------------
+
+# library(DESeq2)
+# library(ggplot2)
+# library(tibble)
+
+## ---- Inspect the data and QC ------------------------------------------------
+
+# metadata <- sample_info
+
+## Distribution of samples
+
+# ggplot(filtered.counts) +
+  geom_histogram(aes(x = filtered.counts$GBM4), stat = "bin", bins = 200) +
+  xlab("Raw expression counts") +
+  ylab("Number of genes")
+
+## Check mean counts versus variance 
+
+# mean_counts <- apply(filtered.counts[,1:2], 1, mean)
+# variance_counts <- apply(filtered.counts[,1:2], 1, var)
+# df.test <- data.frame(mean_counts, variance_counts)
+# ggplot(df.test) +
+  geom_point(aes(x=mean_counts, y=variance_counts)) + 
+  scale_y_log10(limits = c(1,1e9)) +
+  scale_x_log10(limits = c(1,1e9)) +
+  geom_abline(intercept = 0, slope = 1, color="red")
+
+## Create the DESeq2 dataset object
+
+# dds <- DESeqDataSetFromMatrix(countData = filtered.counts,
+                              colData = metadata, 
+                              design = ~mgmt+sex+entity)
+
+## Normalize the data to size factors
+
+# dds <- estimateSizeFactors(dds)
+# normalized.data <- counts(dds, normalized=TRUE)
+
+# Check for the bacth-effect
+
+# rlog_data <- rlog(dds, blind = TRUE)
+# rlog.matrix <- assay(rlog_data)
+# plotPCA(rlog_data, intgroup="batch")
+
+## ---- Correct the batch-effect -----------------------------------------------
+
+# library(sva)
+# library(readxl)
+# library(tibble)
+# library(tidyverse)
+# library(RColorBrewer)
+
+
+
+
+
+
+
+
+
+
 
 
 
