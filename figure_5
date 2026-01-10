@@ -19,3 +19,93 @@ library(qvalue)
 
 ## This continues from the "prepare_rna_analysis_file"
 
+## ---- Input file ------------------------------------------------------------------------------
+
+# View(counts.geneID)
+
+# metadata <- read_excel("data/annotations.xlsx")
+# metadata <- column_to_rownames(metadata, 'x')
+# metadata <- t(metadata)
+# metadata <- as.data.frame(metadata)
+# metadata <- as.data.frame(lapply(metadata, as.factor))
+
+## ---------------------------------------------------------------------------------------------
+# Gene filter step 1: Differential gene expression analysis
+## ---------------------------------------------------------------------------------------------
+
+## ---- Run the DGE analysis --------------------------------------------------------------------
+
+## Analysis for EGFR sensitive versus EGFR resistant tumors
+
+# dds <- DESeqDataSetFromMatrix(countData = counts.geneID,
+                              colData = metadata, 
+                              design = ~egfr+mgmt+entity+sex) 
+
+# dds <- DESeq(dds)
+# res <- results(dds, contrast = c("egfr", "yes", "no"))
+# summary(res) 
+# resOrdered <- res[order(res$pvalue),]
+# sum(res$padj < 0.1, na.rm=TRUE)
+# top.genes <- data.frame(resOrdered)
+
+## ---- Create a data frame of the significant genes ---------------------------------------------
+
+# norm.counts <- counts(dds, normalized = TRUE)
+# norm.counts <- as.data.frame(norm.counts)
+# transformed.norm.counts <- log2(norm.counts+1)
+# sig_genes <- res[which(res$padj < 0.1),]
+# genes_of_interest <- rownames(sig_genes)
+# matching.rows <- match(genes_of_interest, rownames(transformed.norm.counts))
+# extracted.rows <- transformed.norm.counts[matching.rows, ]
+# extracted.rows <- as.data.frame(extracted.rows)
+# extracted.rows <- rownames_to_column(extracted.rows, var = "gene")
+
+## ---------------------------------------------------------------------------------------------
+# Gene filter step 2: Correlation of significantly DGEs with drug sensitivity
+## ---------------------------------------------------------------------------------------------
+
+## ---- Libraries -------------------------------------------------------------------------------
+
+library(RColorBrewer)
+library(tibble)
+library(corrplot)
+library(tidyverse)
+library(readxl)
+library(qvalue)
+
+## ---- Input file ------------------------------------------------------------------------------
+
+## Input file contains a transposed matrix from ther results of 'extracted.rows' with the addition of mean sDSS of the class of EGFR/ERBB inhibitors
+
+# matrix <- degs_egfr_data
+# matrix <- column_to_rownames(matrix, var = "geneID")
+
+## ---- Test one correlation ---------------------------------------------------------------------
+
+# correlation.test <- cor(matrix$mean, matrix$EGFR, method = "pearson")
+# rank.test
+# plot(x = matrix$meansdss, y = matrix$EGFR)
+
+## ---- Univarate correlation variable ------------------------------------------------------------
+
+## Function for univarate correlation
+
+# correlation_results <- list()
+for(col_name in names(matrix)) {
+  if(col_name != "meansdss") {
+    correlation <- cor.test(matrix[, col_name], matrix$mean, method = "pearson")
+    correlation_results[[col_name]] <- list(
+      Correlation = correlation$estimate,
+      P_value = correlation$p.value
+    )
+  }
+}
+correlation_results_df <- do.call(rbind, lapply(names(correlation_results), function(x) cbind(Column=x, as.data.frame(correlation_results[[x]]))))
+sorted_correlation_results <- correlation_results_df[order(-correlation_results_df$Correlation), ]
+sorted_correlation_results$adjusted <- p.adjust(sorted_correlation_results$P_value, method = "fdr")
+
+# View(sorted_correlation_results)
+
+## Heatmap visualization of DGE data combined with DSRT-data and mutations/CNVs using R-package ComplexHeatmap
+## Visualization of correlation coefficients using Ggplot2
+## Steps for analysis repeated for tumors that are MDM2-sensitive versus resistant ('mdm2'), FGFR/PDGFR/VEGFR-sensitive versus resistant ('fgfr') and MEK/ERK-sensitive versus resistant ('mek')
