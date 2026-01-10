@@ -1,1 +1,18 @@
+# ===============================================================================================
+# Figure 5: Integrative molecular profiles of response signatures to EGFR/ERBB targeted therapies
+# - Heatmap of differential gene expression between EGFR-sensitive and -resistant tumors (Figure 5a)
+# - Correlation of DGEs between EGFR-sensitive versus resistant tumors (Figure 5b)
+# - Heatmaps and correlation of DGEs for other targeted therapies (Supplementary Figure 9)
 
+## ---- Libraries -------------------------------------------------------------------------------
+
+library(readxl)
+library(tibble)
+library(tidyverse)
+library(DESeq2)
+library(openxlsx)
+library(qvalue)
+
+# ===============================================================================================
+# Figure 5a: Heatmap of differential gene expression between EGFR-sensitive and -resistant tumors
+# ===============================================================================================
