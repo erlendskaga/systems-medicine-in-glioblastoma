@@ -1,1 +1,78 @@
+# ========================================================================================================
+# Figure 4: Coherent durg sensitivity, pathways, and biological mechanisms in MDM2-sensitive glioblastomas
+# - Step 1: 
+# - Step 2: 
+
+## ---- Libraries -------------------------------------------------------------------------------
+
+# library(PanomiR)
+# library(readxl)
+# library(tibble)
+# library(tidyverse)
+# library(openxlsx)
+# library(msigdbr)
+
+# ===============================================================================================
+# Step 1: 
+# ===============================================================================================
+
+## ---- Input file ------------------------------------------------------------------------------
+
+## Input data is the batch corrected counts prepared in the "prepare_rna_anlysis_file"
+
+# gene.matrix <- read.csv("data/batch.corrected.counts.ensmbl.csv", header = TRUE, sep = ",")
+# gene.matrix <- column_to_rownames(gene.matrix, var = "X")
+# gene.matrix <- as.matrix(gene.matrix)
+
+# metadata <- read_excel("data/rna_annotations.xlsx")
+# metadata <- column_to_rownames(metadata, 'x')
+# metadata <- t(metadata)
+# metadata <- as.data.frame(metadata)
+
+## ---- File preparations (remove version of EnsemblID for function to work ---------------------
+
+# rownames <- rownames(gene.matrix)
+# clean.rownames <- gsub("\\.\\d+$", "", rownames)
+# rownames(gene.matrix) <- clean.rownames
+brary(msigdbr)
+
+## ---- Read in the reference pathways  ---------------------------------------------------------
+
+# mSigDBPathGene <- readRDS("data/MSigDBPathGeneTab.RDS") # You will need the exact reference .RDS-file to compare analyses
+
+## ---- Clean the pathways so they require a minimum of 5 gebes to be kept  ---------------------
+
+# pathwayCleaner <- function(pathways = mSigDBPathGene, id = "ENSEMBL", geneCounts = gene.matrix, minPathSize = 5) {
+  pathways <- as.data.frame(pathways)
+  genesPathways <- pathways[pathways[, id] %in% rownames(geneCounts), ]
+  
+  genesPathways <- genesPathways |> dplyr::group_by(Pathway) |>
+    dplyr::summarise(n = dplyr::n()) |>
+    dplyr::filter(n >= minPathSize)
+  
+  pathways <- pathways |>
+    dplyr::filter(Pathway %in% genesPathways$Pathway)
+  return(pathways)
+}
+
+# cleaned.pathway <- pathwayCleaner(mSigDBPathGene)
+
+## ---- Create the pathway matrix after cleaning for downstream analyses  -----------------------
+
+# summaries <- pathwaySummary(gene.matrix,
+                            cleaned.pathway, method = "x2",
+                            zNormalize = TRUE, id = "ENSEMBL")
+
+# This will end up with 1297 different pathways
+
+## ---- Remove "pathway." in the names for correct downstream analyses  --------------------------
+
+# current_row_names <- rownames(summaries)
+# new_row_names <- sub("Pathway\\.", "", current_row_names)
+# rownames(summaries) <- new_row_names
+
+## This is the Supplementary Table named "Supplementary Table X - Pathway matrix.csv
+
+
+
 
