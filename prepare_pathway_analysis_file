@@ -53,7 +53,7 @@ brary(msigdbr)
 
 ## ---- Create the pathway matrix after cleaning for downstream analyses  -----------------------
 
-# summaries <- pathwaySummary(gene.matrix,
+# pathway.matrix <- pathwaySummary(gene.matrix,
                             cleaned.pathway, method = "x2",
                             zNormalize = TRUE, id = "ENSEMBL")
 
@@ -61,9 +61,9 @@ brary(msigdbr)
 
 ## ---- Remove "pathway." in the names for correct downstream analyses  --------------------------
 
-# current_row_names <- rownames(summaries)
+# current_row_names <- rownames(pathway.matrix)
 # new_row_names <- sub("Pathway\\.", "", current_row_names)
-# rownames(summaries) <- new_row_names
+# rownames(pathway.matrix) <- new_row_names
 
 ## This is the Supplementary Table named "Supplementary Table X - Pathway matrix.csv
 
