@@ -1,7 +1,7 @@
 # ==============================================================================
 # Code for preparation of RNA-sequencing counts for DGE and pathway abalysis
 # - Step 1: Filter lowly expressed genes
-# - 
+# - Step 2: QC and batch correction
 # - 
 
 # ==============================================================================
@@ -53,9 +53,9 @@
 # sex <- as.factor(sex)
 # dlist$samples$sex <- sex
 
-# three <- ann$group.of.three
-# three <- as.factor(three)
-# dlist$samples$three <- three
+# five <- ann$group.of.five # create a group of five tumors as the smallest group for gene filtering (genes must be expressed in > 5 tumors to be kept for downstream analysis)
+# five <- as.factor(five)
+# dlist$samples$five <- five
 
 # sensitivity <- ann$sensitive
 # sensitivity <- as.factor(sensitivity)
@@ -72,8 +72,24 @@
 # dlist$samples$lib.size
 # summary(dlist$samples$lib.size)
 
-# ==============================================================================
 # ---- Filter lowly expressed genes --------------------------------------------
+
+# ?filterByExpr #used function (filterByExpr) from the edgeR-package for autmatic gene filtering
+# keep.exprs <- filterByExpr(dlist, group = five)
+# x <- dlist[keep.exprs, , keep.lib.sizes=FALSE]
+# dlist$samples$lib.size
+# x$samples$lib.size
+# counts_filtered <- x$counts
+
+
+# ==============================================================================
+# Step 2: QC and batch correction
+# ==============================================================================
+
+
+
+
+
 
 
 
