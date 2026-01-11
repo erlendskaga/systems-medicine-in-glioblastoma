@@ -1,5 +1,8 @@
-# ========================================================================================================
+# ==============================================================================================================
 # Figure 4: Coherent durg sensitivity, pathways, and biological mechanisms in MDM2-sensitive glioblastomas
+# - Figure 4 d: Volcano plot of differentially active pathways betweeen MDM2-sensitive and MDM2-resistant tumors
+# - Figure 4 g: Biological systems in MDM2-sensitive tumors
+# - Supplementary figure 8: Coherent drug sensitivity, pathways, and biological systems in glibolastomas.
 
 ## ---- Libraries -------------------------------------------------------------------------------
 
@@ -86,6 +89,6 @@ contr.matrix
 
 ## ---- Repeat the analysis for the other drug classes ---------------------------------------------------
 
-
-
-
+# EGFR: Design matrix: ~0+mdm2+mgmt+entity+sex. Contrast matrix: c("egfryes-egfrno")
+# FGFR&PDGFR/VEGFR: Design matrix: ~0+fgfr+mgmt+entity+sex. Contrast matrix: c("fgfryes-fgfrno")
+# MEK/ERK: Design matrix: ~0+mek+mgmt+entity+sex. Contrast matrix: c("mekyes-mekno")
