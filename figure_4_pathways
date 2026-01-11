@@ -4,7 +4,11 @@
 # - Figure 4 g: Biological systems in MDM2-sensitive tumors
 # - Supplementary figure 8: Coherent drug sensitivity, pathways, and biological systems in glibolastomas.
 
-## ---- Libraries -------------------------------------------------------------------------------
+# ==============================================================================================================
+# Figure 4 d: Volcano plot of differentially active pathways betweeen MDM2-sensitive and MDM2-resistant tumors
+# ==============================================================================================================
+
+## ---- Libraries ----------------------------------------------------------------------------------------------
 
 # library(edgeR)
 # library(readxl)
@@ -18,7 +22,7 @@
 # library(ggplot2)
 # library(dplyr)
 
-## ---- Input file ------------------------------------------------------------------------------
+## ---- Input file ---------------------------------------------------------------------------------------------
 
 ## Input data is the "pathway.matrix" prepeared in the "prepare_pathways_anlysis_file"
 
@@ -92,3 +96,11 @@ contr.matrix
 # EGFR: Design matrix: ~0+mdm2+mgmt+entity+sex. Contrast matrix: c("egfryes-egfrno")
 # FGFR&PDGFR/VEGFR: Design matrix: ~0+fgfr+mgmt+entity+sex. Contrast matrix: c("fgfryes-fgfrno")
 # MEK/ERK: Design matrix: ~0+mek+mgmt+entity+sex. Contrast matrix: c("mekyes-mekno")
+
+# ==============================================================================================================
+# Figure 4 g: Biological systems in MDM2-sensitive tumors
+# ==============================================================================================================
+
+
+
+
