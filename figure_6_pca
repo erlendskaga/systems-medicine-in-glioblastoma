@@ -43,45 +43,28 @@
 # ann <- t(ann)  
 # ann <- as.data.frame(ann)  
 
-##--------------------##
-##### PCA with NIPALS #####
-##--------------------##
+## ---- Prepare Principal Component Analysis with NIPALS -----------------------------
 
-# Run PCA with NIPALS
-pca_result <- pca(new_res, method = "nipals", nPcs = 10, scale = "uv")
+# pca_result <- pca(new_res, method = "nipals", nPcs = 10, scale = "uv")
+# scores <- as.data.frame(pca_result@scores)
+# scores$Subgroup <- ann$`DSRT group`  # Adjust "Subgroup" to match your column name in `ann`
+# group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black", "6" = "grey")
 
-# Extract scores and convert to data frame
-scores <- as.data.frame(pca_result@scores)
+## ---- Run Principal Component Analysis with NIPALS ---------------------------------
 
-# Add subgroup information from "ann" to "scores" data frame
-scores$Subgroup <- ann$`DSRT group`  # Adjust "Subgroup" to match your column name in `ann`
-
-# Define colors for the subgroups (1 to 5)
-group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black", "6" = "grey")
-
-# Plot the PCA with colors based on subgroups
-plot(scores$PC2, scores$PC3, col = group_colors[as.character(scores$Subgroup)], 
+# plot(scores$PC2, scores$PC3, col = group_colors[as.character(scores$Subgroup)], 
      pch = 16, xlab = "PC2", ylab = "PC3", main = "PCA with Colored Groups")
+# legend("topright", legend = names(group_colors), col = group_colors, pch = 16, title = "Subgroups")
 
-# Add a legend for the subgroups
-legend("topright", legend = names(group_colors), col = group_colors, pch = 16, title = "Subgroups")
+## ---- Plot PCA with ggplot2 --------------------------------------------------------
 
-##---------------------##
-##### PCA in GGPLOT #####
-##---------------------##
+# explained_variance <- round(100 * pca_result@R2, 1)  # Extract and round to 2 decimal places
+# scores <- as.data.frame(pca_result@scores)
+# scores$Subgroup <- as.factor(ann$`DSRT group`) 
 
-# Calculate explained variance percentages
-explained_variance <- round(100 * pca_result@R2, 1)  # Extract and round to 2 decimal places
-explained_variance
-
-# Convert scores data to a data frame with subgroup information
-scores <- as.data.frame(pca_result@scores)
-scores$Subgroup <- as.factor(ann$`DSRT group`)  # Ensure Subgroup is a factor for ggplot2
-
-# Create the PCA plot for PCX vs. PCY using ggplot2 with grid lines and variance labels
-pca_plot_custom <- ggplot(scores, aes(x = PC2, y = PC3, color = Subgroup)) +
+# pca_plot_custom <- ggplot(scores, aes(x = PC2, y = PC3, color = Subgroup)) +
   geom_point(size = 7, alpha = 0.8) +  # Larger dots with slight transparency
-  scale_color_manual(values = group_colors) +  # Use custom colors
+  scale_color_manual(values = group_colors) + 
   labs(
     x = paste0("Principal Component 2"),
     y = paste0("Principal Component 3"),
@@ -89,57 +72,68 @@ pca_plot_custom <- ggplot(scores, aes(x = PC2, y = PC3, color = Subgroup)) +
   ) +
   theme_minimal() +
   theme(
-    panel.border = element_rect(color = "black", fill = NA, size = 1),  # Add a black border around the plot
-    #panel.grid.major = element_line(color = "grey80"),  # Major grid lines
-    panel.grid.minor = element_line(color = "grey90"),  # Minor grid lines for finer detail
-    text = element_text(size = 25),  # Set base text size for readability
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Center and style title
-    axis.title = element_text(),  # Bold axis titles
-    axis.text = element_text(size = 25),  # Increase axis tick number size
-    legend.title = element_text(size = 15),  # Style legend title
-    legend.text = element_text(size = 15)  # Style legend text
-  ) +
-  guides(color = guide_legend(title = "DSRT group"))  # Customize legend title
-
-# Display the plot
-print(pca_plot_custom)
-
-
-### Change to tumor names
-
-all(rownames(scores) == rownames(ann))
-rownames(scores)
-
-scores <- as.data.frame(pca_result@scores)
-scores$Subgroup <- as.factor(ann$`DSRT group`)
-scores$Tumor <- rownames(scores)
-
-library(ggrepel)
-
-pca_plot_custom <- ggplot(scores, aes(x = PC2, y = PC3, color = Subgroup)) +
-  geom_point(size = 7, alpha = 0.8) +
-  geom_text_repel(
-    aes(label = Tumor),
-    size = 6,
-    max.overlaps = Inf,
-    show.legend = FALSE
-  ) +
-  scale_color_manual(values = group_colors) +
-  labs(
-    x = "Principal Component 2",
-    y = "Principal Component 3",
-    title = ""
-  ) +
-  theme_minimal() +
-  theme(
-    panel.border = element_rect(color = "black", fill = NA, size = 1),
-    panel.grid.minor = element_line(color = "grey90"),
-    text = element_text(size = 25),
-    axis.text = element_text(size = 25),
-    legend.title = element_text(size = 15),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  
+    #panel.grid.major = element_line(color = "grey80"), 
+    panel.grid.minor = element_line(color = "grey90"),  
+    text = element_text(size = 25), 
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"), 
+    axis.title = element_text(), 
+    axis.text = element_text(size = 25), 
+    legend.title = element_text(size = 15), 
     legend.text = element_text(size = 15)
   ) +
   guides(color = guide_legend(title = "DSRT group"))
 
-print(pca_plot_custom)
 
+# print(pca_plot_custom)
+
+## ---- SessionInfo -------------------------------------------------------------
+
+# sessionInfo()
+
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS 26.2
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: Europe/Oslo
+tzcode source: internal
+
+attached base packages:
+[1] grid      stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] ggrepel_0.9.5         plotly_4.10.4         gridExtra_2.3         tidytext_0.4.2       
+ [5] readxl_1.4.3          circlize_0.4.16       ComplexHeatmap_2.18.0 devtools_2.4.5       
+ [9] usethis_2.2.3         lubridate_1.9.3       forcats_1.0.0         stringr_1.5.1        
+[13] dplyr_1.1.4           purrr_1.0.2           readr_2.1.5           tidyr_1.3.1          
+[17] tibble_3.2.1          ggplot2_3.5.1         tidyverse_2.0.0       pcaMethods_1.94.0    
+[21] Biobase_2.62.0        BiocGenerics_0.48.1  
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.2.1    viridisLite_0.4.2   farver_2.1.2        fastmap_1.2.0      
+ [5] lazyeval_0.2.2      janeaustenr_1.0.0   promises_1.3.0      digest_0.6.36      
+ [9] timechange_0.3.0    mime_0.12           lifecycle_1.0.4     cluster_2.1.6      
+[13] ellipsis_0.3.2      tokenizers_0.3.0    magrittr_2.0.3      compiler_4.3.2     
+[17] rlang_1.1.4         tools_4.3.2         utf8_1.2.4          data.table_1.15.4  
+[21] labeling_0.4.3      htmlwidgets_1.6.4   pkgbuild_1.4.4      RColorBrewer_1.1-3 
+[25] pkgload_1.4.0       miniUI_0.1.1.1      withr_3.0.1         stats4_4.3.2       
+[29] fansi_1.0.6         urlchecker_1.0.1    profvis_0.3.8       xtable_1.8-4       
+[33] colorspace_2.1-1    MASS_7.3-60.0.1     scales_1.3.0        iterators_1.0.14   
+[37] cli_3.6.3           crayon_1.5.3        remotes_2.5.0       generics_0.1.3     
+[41] rstudioapi_0.16.0   httr_1.4.7          tzdb_0.4.0          rjson_0.2.21       
+[45] sessioninfo_1.2.2   cachem_1.1.0        parallel_4.3.2      cellranger_1.1.0   
+[49] matrixStats_1.3.0   vctrs_0.6.5         Matrix_1.6-5        jsonlite_1.8.8     
+[53] IRanges_2.36.0      hms_1.1.3           GetoptLong_1.0.5    S4Vectors_0.40.2   
+[57] clue_0.3-65         foreach_1.5.2       glue_1.7.0          codetools_0.2-20   
+[61] stringi_1.8.4       shape_1.4.6.1       gtable_0.3.5        later_1.3.2        
+[65] munsell_0.5.1       pillar_1.9.0        htmltools_0.5.8.1   R6_2.5.1           
+[69] doParallel_1.0.17   shiny_1.8.1.1       lattice_0.22-6      png_0.1-8          
+[73] SnowballC_0.7.1     memoise_2.0.1       httpuv_1.6.15       Rcpp_1.0.13        
+[77] fs_1.6.4            pkgconfig_2.0.3     GlobalOptions_0.1.2
