@@ -148,9 +148,9 @@ contr.matrix
 ## ---- Repeat the analysis for the other drug classes ---------------------------------------------------------
 
 sessionInfo()
-R version 4.3.2 (2023-10-31)
-Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS Sonoma 14.5
+# R version 4.3.2 (2023-10-31)
+# Platform: aarch64-apple-darwin20 (64-bit)
+# Running under: macOS 26.2
 
 Matrix products: default
 BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
