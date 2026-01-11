@@ -111,9 +111,10 @@ sorted_correlation_results$adjusted <- p.adjust(sorted_correlation_results$P_val
 ## Steps for analysis repeated for tumors that are MDM2-sensitive versus resistant ('mdm2'), FGFR/PDGFR/VEGFR-sensitive versus resistant ('fgfr') and MEK/ERK-sensitive versus resistant ('mek')
 
 sessionInfo()
-R version 4.3.2 (2023-10-31)
-Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS Sonoma 14.5
+# R version 4.3.2 (2023-10-31)
+# Platform: aarch64-apple-darwin20 (64-bit)
+# Running under: macOS 26.2
+
 
 Matrix products: default
 BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
