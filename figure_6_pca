@@ -1,1 +1,197 @@
+# ===============================================================================================================
+# Figure 6: DSRT guided therapy leads to intracranial responses in pediatric and adult high-grade glioma patients 
+# - Principal component analysis of PDCs in the validation cohort (Figure 6a, c)
+# - Principal component analysis of the PDCs for validation (Supplementary Figure 11)
+
+## ---- Libraries --------------------------------------------------------------
+
+library(tidyverse)
+library(devtools)
+library(ComplexHeatmap)
+library(circlize)
+library(readxl)
+library(tibble)
+library(ggplot2)
+library(pcaMethods)
+library(dplyr)
+library(tidyr)
+library(tidytext)
+library(gridExtra)
+library(plotly)
+
+# ==============================================================================
+# Figure 6a: Drug sensitivity taxonomy of glioblastoma
+# ==============================================================================
+
+
+
+##--------------------##
+##### DATA SORTING #####
+##--------------------##
+
+# Define Excel-sheet
+new_dsrt <- read_excel("data/dsrt_boston_drugs.xlsx")  
+new_dsrt <- column_to_rownames(new_dsrt, var = "DRUG_NAME")
+colnames(new_dsrt)
+
+## FROM HERE WITH ORIGINAL NAMES
+# remove down to the reference PCA (all extended tumors gone)
+#new_res <- select(new_dsrt, -c(Mechanism.Targets, "T23-133.RES", "T23-151.RES", "T23-153.MEK", "T23-186.RES", "T24-028.MDM2", "T24-078.FGFR", "T24-264.CC", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T1617", "T1634", "T20-068.DMG", "T25096"))
+
+# remove to include reference PCA + 10 new tumors
+#new_res <- select(new_dsrt, -c(Mechanism.Targets, "T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
+
+# remove to include reference PCA + 5 tumors not presented in paper
+#new_res <- select(new_dsrt, -c(Mechanism.Targets, "T23-133.RES", "T23-153.MEK", "T24-028.MDM2", "T24-078.FGFR", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T20-068.DMG","T25096"))
+
+## FROM HERE WITH GBM-names
+# remove down to the reference PCA (all extended tumors gone)
+new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r", "GBM69r", "T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
+
+# remove to include reference PCA + 10 new tumors
+new_res <- select(new_dsrt, -c(Mechanism.Targets, "T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
+
+# remove to include reference PCA + 5 tumors not presented in paper
+new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM63r", "GBM65r", "GBM67r", "GBM68r", "T24-213\r\nRecGBM", "T1409", "GBM60", "T20-068.DMG","T25096"))
+
+# remove down to the reference PCA (my selected tumor)
+new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r","T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
+
+new_res <- as.matrix(new_res)
+new_res <- t(new_res)
+rownames(new_res)
+
+# Define Excel sheet for sample annotation and transpose
+ann <- read_excel("data/annotate_all.xlsx")  
+ann <- column_to_rownames(ann, var = "Tumor.ID")
+colnames(ann)
+
+## FROM HERE WITH ORIGINAL NAMES
+
+# remove down to the reference PCA (all extended tumors gone)
+ann <- select(ann, -c("T23-133.RES", "T23-151.RES", "T23-153.MEK", "T23-186.RES", "T24-028.MDM2", "T24-078.FGFR", "T24-264.CC", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T1617", "T1634", "T20-068.DMG","T25096"))
+
+# remove to include reference PCA + 10 new tumors
+ann <- select(ann, -c("T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
+
+# remove to include reference PCA + 5 tumors not presented in paper
+ann <- select(ann, -c("T23-133.RES", "T23-153.MEK", "T24-028.MDM2", "T24-078.FGFR", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T20-068.DMG","T25096"))
+
+## ----- FROM HERE WITH GBM-names -----##
+
+# remove down to the reference PCA (all extended tumors gone)
+ann <- select(ann, -c("GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r", "GBM69r", "T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
+
+# remove to include reference PCA + 10 new tumors
+ann <- select(ann, -c("T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
+
+# remove to include reference PCA + 5 tumors not presented in paper
+ann <- select(ann, -c("GBM63r", "GBM65r", "GBM67r", "GBM68r", "T24-213\r\nRecGBM", "T1409", "GBM60", "T20-068.DMG","T25096"))
+
+# remove down to the reference PCA (with my selected tumor)
+ann <- select(ann, -c("GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r","T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
+
+ann <- t(ann)  
+ann <- as.data.frame(ann)  
+rownames(ann)
+
+##--------------------##
+##### PCA with NIPALS #####
+##--------------------##
+
+# Run PCA with NIPALS
+pca_result <- pca(new_res, method = "nipals", nPcs = 10, scale = "uv")
+
+# Extract scores and convert to data frame
+scores <- as.data.frame(pca_result@scores)
+
+# Add subgroup information from "ann" to "scores" data frame
+scores$Subgroup <- ann$`DSRT group`  # Adjust "Subgroup" to match your column name in `ann`
+
+# Define colors for the subgroups (1 to 5)
+group_colors <- c("1" = "red3", "2" = "orange2", "3" = "green4", "4" = "blue4", "5" = "black", "6" = "grey")
+
+# Plot the PCA with colors based on subgroups
+plot(scores$PC2, scores$PC3, col = group_colors[as.character(scores$Subgroup)], 
+     pch = 16, xlab = "PC2", ylab = "PC3", main = "PCA with Colored Groups")
+
+# Add a legend for the subgroups
+legend("topright", legend = names(group_colors), col = group_colors, pch = 16, title = "Subgroups")
+
+##---------------------##
+##### PCA in GGPLOT #####
+##---------------------##
+
+# Calculate explained variance percentages
+explained_variance <- round(100 * pca_result@R2, 1)  # Extract and round to 2 decimal places
+explained_variance
+
+# Convert scores data to a data frame with subgroup information
+scores <- as.data.frame(pca_result@scores)
+scores$Subgroup <- as.factor(ann$`DSRT group`)  # Ensure Subgroup is a factor for ggplot2
+
+# Create the PCA plot for PCX vs. PCY using ggplot2 with grid lines and variance labels
+pca_plot_custom <- ggplot(scores, aes(x = PC2, y = PC3, color = Subgroup)) +
+  geom_point(size = 7, alpha = 0.8) +  # Larger dots with slight transparency
+  scale_color_manual(values = group_colors) +  # Use custom colors
+  labs(
+    x = paste0("Principal Component 2"),
+    y = paste0("Principal Component 3"),
+    title = ""
+  ) +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  # Add a black border around the plot
+    #panel.grid.major = element_line(color = "grey80"),  # Major grid lines
+    panel.grid.minor = element_line(color = "grey90"),  # Minor grid lines for finer detail
+    text = element_text(size = 25),  # Set base text size for readability
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Center and style title
+    axis.title = element_text(),  # Bold axis titles
+    axis.text = element_text(size = 25),  # Increase axis tick number size
+    legend.title = element_text(size = 15),  # Style legend title
+    legend.text = element_text(size = 15)  # Style legend text
+  ) +
+  guides(color = guide_legend(title = "DSRT group"))  # Customize legend title
+
+# Display the plot
+print(pca_plot_custom)
+
+
+### Change to tumor names
+
+all(rownames(scores) == rownames(ann))
+rownames(scores)
+
+scores <- as.data.frame(pca_result@scores)
+scores$Subgroup <- as.factor(ann$`DSRT group`)
+scores$Tumor <- rownames(scores)
+
+library(ggrepel)
+
+pca_plot_custom <- ggplot(scores, aes(x = PC2, y = PC3, color = Subgroup)) +
+  geom_point(size = 7, alpha = 0.8) +
+  geom_text_repel(
+    aes(label = Tumor),
+    size = 6,
+    max.overlaps = Inf,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = group_colors) +
+  labs(
+    x = "Principal Component 2",
+    y = "Principal Component 3",
+    title = ""
+  ) +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    panel.grid.minor = element_line(color = "grey90"),
+    text = element_text(size = 25),
+    axis.text = element_text(size = 25),
+    legend.title = element_text(size = 15),
+    legend.text = element_text(size = 15)
+  ) +
+  guides(color = guide_legend(title = "DSRT group"))
+
+print(pca_plot_custom)
 
