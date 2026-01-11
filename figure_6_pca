@@ -5,95 +5,43 @@
 
 ## ---- Libraries --------------------------------------------------------------
 
-library(tidyverse)
-library(devtools)
-library(ComplexHeatmap)
-library(circlize)
-library(readxl)
-library(tibble)
-library(ggplot2)
-library(pcaMethods)
-library(dplyr)
-library(tidyr)
-library(tidytext)
-library(gridExtra)
-library(plotly)
+# library(tidyverse)
+# library(devtools)
+# library(ComplexHeatmap)
+# library(circlize)
+# library(readxl)
+# library(tibble)
+# library(ggplot2)
+# library(pcaMethods)
+# library(dplyr)
+# library(tidyr)
+# library(tidytext)
+# library(gridExtra)
+# library(plotly)
 
 # ==============================================================================
 # Figure 6a: Drug sensitivity taxonomy of glioblastoma
 # ==============================================================================
 
+## ---- Input files ------------------------------------------------------------
 
+# new_dsrt <- read_excel("data/tableX.DSRT_validation.xlsx")  
+# new_dsrt <- column_to_rownames(new_dsrt, var = "DRUG_NAME")
 
-##--------------------##
-##### DATA SORTING #####
-##--------------------##
+# remove down to the reference PCA (all extended tumors removed with this code, leave outs single tumors in the code for clustering specific tumors)
+# new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM60", "GBM61", "GBM62", "GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r", "GBM69r", "DMG70"))
+# new_res <- as.matrix(new_res)
+# new_res <- t(new_res)
 
-# Define Excel-sheet
-new_dsrt <- read_excel("data/dsrt_boston_drugs.xlsx")  
-new_dsrt <- column_to_rownames(new_dsrt, var = "DRUG_NAME")
-colnames(new_dsrt)
+## ---- Load sample annotations ------------------------------------------------
 
-## FROM HERE WITH ORIGINAL NAMES
-# remove down to the reference PCA (all extended tumors gone)
-#new_res <- select(new_dsrt, -c(Mechanism.Targets, "T23-133.RES", "T23-151.RES", "T23-153.MEK", "T23-186.RES", "T24-028.MDM2", "T24-078.FGFR", "T24-264.CC", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T1617", "T1634", "T20-068.DMG", "T25096"))
+# ann <- read_excel("data/TableX.Annotation_validation.xlsx")  
+# ann <- column_to_rownames(ann, var = "Tumor.ID")
 
-# remove to include reference PCA + 10 new tumors
-#new_res <- select(new_dsrt, -c(Mechanism.Targets, "T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
-
-# remove to include reference PCA + 5 tumors not presented in paper
-#new_res <- select(new_dsrt, -c(Mechanism.Targets, "T23-133.RES", "T23-153.MEK", "T24-028.MDM2", "T24-078.FGFR", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T20-068.DMG","T25096"))
-
-## FROM HERE WITH GBM-names
-# remove down to the reference PCA (all extended tumors gone)
-new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r", "GBM69r", "T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
-
-# remove to include reference PCA + 10 new tumors
-new_res <- select(new_dsrt, -c(Mechanism.Targets, "T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
-
-# remove to include reference PCA + 5 tumors not presented in paper
-new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM63r", "GBM65r", "GBM67r", "GBM68r", "T24-213\r\nRecGBM", "T1409", "GBM60", "T20-068.DMG","T25096"))
-
-# remove down to the reference PCA (my selected tumor)
-new_res <- select(new_dsrt, -c(Mechanism.Targets, "GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r","T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
-
-new_res <- as.matrix(new_res)
-new_res <- t(new_res)
-rownames(new_res)
-
-# Define Excel sheet for sample annotation and transpose
-ann <- read_excel("data/annotate_all.xlsx")  
-ann <- column_to_rownames(ann, var = "Tumor.ID")
-colnames(ann)
-
-## FROM HERE WITH ORIGINAL NAMES
-
-# remove down to the reference PCA (all extended tumors gone)
-ann <- select(ann, -c("T23-133.RES", "T23-151.RES", "T23-153.MEK", "T23-186.RES", "T24-028.MDM2", "T24-078.FGFR", "T24-264.CC", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T1617", "T1634", "T20-068.DMG","T25096"))
-
-# remove to include reference PCA + 10 new tumors
-ann <- select(ann, -c("T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
-
-# remove to include reference PCA + 5 tumors not presented in paper
-ann <- select(ann, -c("T23-133.RES", "T23-153.MEK", "T24-028.MDM2", "T24-078.FGFR", "T24-213\r\nRecGBM", "T1409", "T1543.EGFR", "T20-068.DMG","T25096"))
-
-## ----- FROM HERE WITH GBM-names -----##
-
-# remove down to the reference PCA (all extended tumors gone)
-ann <- select(ann, -c("GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r", "GBM69r", "T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
-
-# remove to include reference PCA + 10 new tumors
-ann <- select(ann, -c("T24-213\r\nRecGBM", "T1409", "T20-068.DMG","T25096"))
-
-# remove to include reference PCA + 5 tumors not presented in paper
-ann <- select(ann, -c("GBM63r", "GBM65r", "GBM67r", "GBM68r", "T24-213\r\nRecGBM", "T1409", "GBM60", "T20-068.DMG","T25096"))
-
-# remove down to the reference PCA (with my selected tumor)
-ann <- select(ann, -c("GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r","T24-213\r\nRecGBM", "T1409", "GBM60", "GBM61", "GBM62", "T20-068.DMG", "T25096"))
-
-ann <- t(ann)  
-ann <- as.data.frame(ann)  
-rownames(ann)
+# remove down to the reference PCA (all extended tumors removed with this code, leave outs single tumors in the code for clustering specific tumors)
+# ann <- select(ann, -c("GBM60", "GBM61", "GBM62", "GBM63r", "GBM64r", "GBM65r", "GBM66r", "GBM67r", "GBM68r", "GBM69r", "DMG70"))
+# ann <- t(ann)  
+# ann <- as.data.frame(ann)  
 
 ##--------------------##
 ##### PCA with NIPALS #####
